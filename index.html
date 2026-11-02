@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Essenza Joyería | Manillas con balines de oro 18k</title>
+<meta name="description" content="Manillas tejidas con balines de oro 18k. Pide por WhatsApp.">
+<meta property="og:title" content="Essenza Joyería">
+<meta property="og:description" content="Manillas tejidas con balines de oro 18k. Pide por WhatsApp.">
+<style>
+:root{--bg:#faf7f2;--card:#fff;--ink:#241c12;--mut:#7a6d5c;--gold:#b8860b;--line:#e8dfcf;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root{--bg:#15110b;--card:#201a12;--ink:#f3ead9;--mut:#a89a84;--gold:#e0b341;--line:#35291a}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Georgia,"Times New Roman",serif;line-height:1.45}
+.wrap{max-width:960px;margin:0 auto;padding:20px 16px 90px}
+header{text-align:center;padding:28px 0 18px}
+h1{font-size:2rem;margin:0;letter-spacing:.04em;color:var(--gold)}
+.tag{color:var(--mut);margin:6px 0 0;font-style:italic}
+.bar{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:16px 0}
+.chip,.btn{font:inherit;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:7px 14px;cursor:pointer}
+.chip.on{background:var(--gold);color:#fff;border-color:var(--gold)}
+.btn.pri{background:var(--gold);color:#fff;border-color:var(--gold)}
+.btn.sm{padding:5px 11px;font-size:.85rem}
+input,select,textarea{font:inherit;width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
+.search{max-width:420px;margin:0 auto 6px;display:block}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
+.ph{aspect-ratio:1/1;background:linear-gradient(135deg,var(--line),var(--card));display:flex;align-items:center;justify-content:center;font-size:3rem;position:relative}
+.ph img{width:100%;height:100%;object-fit:cover}
+.sold{position:absolute;top:10px;left:10px;background:#000a;color:#fff;font-size:.75rem;padding:3px 9px;border-radius:999px}
+.body{padding:12px 14px 14px;display:flex;flex-direction:column;gap:6px;flex:1}
+.cat{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--mut)}
+.nm{font-size:1.1rem;margin:0}
+.ds{color:var(--mut);font-size:.9rem;margin:0}
+.pr{color:var(--gold);font-weight:bold;font-size:1.1rem;margin-top:auto}
+.row{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.wa{display:block;width:100%;font:inherit;border:0;cursor:pointer;text-align:center;background:#1f9d55;color:#fff;border-radius:10px;padding:9px 10px;font-size:.9rem;margin-top:6px}
+.empty{text-align:center;color:var(--mut);padding:40px 0}
+.fab{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:5;box-shadow:0 4px 14px #0004}
+.modal{position:fixed;inset:0;background:#0008;display:none;align-items:flex-end;justify-content:center;z-index:20}
+.modal.open{display:flex}
+.sheet{background:var(--card);width:100%;max-width:520px;max-height:92%;overflow:auto;border-radius:18px 18px 0 0;padding:18px;display:flex;flex-direction:column;gap:10px}
+.sheet h2{margin:0;color:var(--gold)}
+label{font-size:.85rem;color:var(--mut);display:block;margin-bottom:3px}
+.note{font-size:.78rem;color:var(--mut);text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap"><div id="app"></div></div>
+<div class="modal" id="modal"></div>
+<script>
+/* =====================================================
+   AQUÍ EDITAS TU NEGOCIO (solo cambia lo que está entre comillas)
+   ===================================================== */
+var NEGOCIO  = "Essenza Joyería";
+var SLOGAN   = "Manillas tejidas con balines de oro 18k";
+var WHATSAPP = "573000000000";   // tu número con indicativo, sin + ni espacios
+
+/* Una línea por manilla. Las fotos van en la carpeta "fotos" (ej. "fotos/manilla1.jpg").
+   balines: 1, 2 o 3  |  mm: tamaño del balín  |  precio: solo números (0 = "Consultar precio")
+   vendida: true la marca como vendida */
+var PRODUCTOS = [
+  { id:"m1", nombre:"Manilla 1 balín",   balines:1, mm:4, precio:0, desc:"Manilla tejida con balín de oro 18k.",   foto:"", vendida:false },
+  { id:"m2", nombre:"Manilla 2 balines", balines:2, mm:5, precio:0, desc:"Manilla tejida con balines de oro 18k.", foto:"", vendida:false },
+  { id:"m3", nombre:"Manilla 3 balines", balines:3, mm:6, precio:0, desc:"Manilla tejida con balines de oro 18k.", foto:"", vendida:false }
+];
+/* ===================== FIN DE LO EDITABLE ===================== */
+
+(function(){
+  var app = document.getElementById('app'), modal = document.getElementById('modal');
+  var cat = 'Todo', q = '', cart = {};
+  var money = function(n){ return '$' + Number(n||0).toLocaleString('es-CO') + ' COP'; };
+  var esc = function(s){ return String(s==null?'':s).replace(/[&<>"'`]/g,function(c){ return '&#'+c.charCodeAt(0)+';'; }); };
+  var catOf = function(p){ return p.balines + (p.balines>1?' balines':' balín'); };
+  var safeImg = function(s){ return /^[\w\-.\/]+\.(jpe?g|png|webp|gif)$/i.test(s||'') && s.indexOf('..')<0; };
+
+  function render(){
+    var cats = ['Todo'], seen = {};
+    PRODUCTOS.forEach(function(p){ var c = catOf(p); if(!seen[c]){ seen[c]=1; cats.push(c); } });
+    var list = PRODUCTOS.filter(function(p){
+      return (cat==='Todo' || catOf(p)===cat) && (!q || (p.nombre+' '+(p.desc||'')).toLowerCase().indexOf(q.toLowerCase())>-1);
+    });
+    var h = '<header><h1>'+esc(NEGOCIO)+'</h1><p class="tag">'+esc(SLOGAN)+'</p></header>';
+    h += '<input class="search" id="q" placeholder="Buscar manilla…" value="'+esc(q)+'">';
+    h += '<div class="bar">'+cats.map(function(c){ return '<button class="chip '+(c===cat?'on':'')+'" data-c="'+esc(c)+'">'+esc(c)+'</button>'; }).join('')+'</div>';
+    if(!list.length){ h += '<div class="empty">No hay piezas para mostrar.</div>'; }
+    else {
+      h += '<div class="grid">'+list.map(function(p){
+        return '<div class="card"><div class="ph">'+(safeImg(p.foto)?'<img src="'+esc(p.foto)+'" alt="'+esc(p.nombre)+'">':'📿')+(p.vendida?'<span class="sold">Vendida</span>':'')+'</div>'+
+          '<div class="body"><span class="cat">'+esc(catOf(p))+(p.mm?' · '+esc(p.mm)+' mm':'')+'</span><h3 class="nm">'+esc(p.nombre)+'</h3><p class="ds">'+esc(p.desc)+'</p>'+
+          '<div class="pr">'+(p.precio?money(p.precio):'Consultar precio')+'</div>'+
+          (!p.vendida?'<button class="wa" data-a="'+esc(p.id)+'">Agregar al pedido</button>':'')+'</div></div>';
+      }).join('')+'</div>';
+    }
+    var cnt = Object.keys(cart).reduce(function(a,k){ return a+cart[k]; },0);
+    if(cnt) h += '<button class="btn pri fab" id="cartb">🛒 Ver pedido ('+cnt+')</button>';
+    app.innerHTML = h;
+    var $ = function(id){ return document.getElementById(id); };
+    if($('cartb')) $('cartb').onclick = openCart;
+    $('q').oninput = function(e){ q=e.target.value; var pos=e.target.selectionStart; render(); var n=$('q'); n.focus(); n.setSelectionRange(pos,pos); };
+    app.querySelectorAll('[data-c]').forEach(function(b){ b.onclick=function(){ cat=b.dataset.c; render(); }; });
+    app.querySelectorAll('[data-a]').forEach(function(b){ b.onclick=function(){ cart[b.dataset.a]=(cart[b.dataset.a]||0)+1; render(); }; });
+  }
+
+  function openCart(){
+    var lines = PRODUCTOS.filter(function(p){ return cart[p.id]; });
+    if(!lines.length){ modal.classList.remove('open'); render(); return; }
+    var total = lines.reduce(function(a,p){ return a+p.precio*cart[p.id]; },0);
+    var methods = ['Transferencia','Tarjeta débito','Tarjeta crédito'];
+    modal.innerHTML = '<div class="sheet"><h2>Tu pedido</h2>'+
+      lines.map(function(p){ return '<div class="row" style="justify-content:space-between;align-items:center"><span>'+esc(p.nombre)+' × '+cart[p.id]+'<br><small>'+(p.precio?money(p.precio*cart[p.id]):'Consultar precio')+'</small></span><span><button class="btn sm" data-m="'+esc(p.id)+'">−</button> <button class="btn sm" data-p="'+esc(p.id)+'">+</button></span></div>'; }).join('')+
+      '<div class="pr">Total: '+(total?money(total):'a confirmar')+'</div>'+
+      '<div><label>Tu nombre</label><input id="cn" maxlength="60"></div>'+
+      '<div><label>Método de pago</label><select id="pm">'+methods.map(function(m){ return '<option>'+m+'</option>'; }).join('')+'</select></div>'+
+      '<div><label>Notas (opcional)</label><textarea id="nt" rows="2" maxlength="300"></textarea></div>'+
+      '<div class="note">No escribas datos de tu tarjeta aquí. El pago se coordina directamente por WhatsApp.</div>'+
+      '<div class="row"><button class="btn pri" id="send">Enviar pedido por WhatsApp</button><button class="btn" id="no">Cerrar</button></div></div>';
+    modal.classList.add('open');
+    var g = function(x){ return document.getElementById(x); };
+    g('no').onclick = function(){ modal.classList.remove('open'); };
+    modal.querySelectorAll('[data-m]').forEach(function(b){ b.onclick=function(){ cart[b.dataset.m]--; if(cart[b.dataset.m]<=0) delete cart[b.dataset.m]; openCart(); }; });
+    modal.querySelectorAll('[data-p]').forEach(function(b){ b.onclick=function(){ cart[b.dataset.p]++; openCart(); }; });
+    g('send').onclick = function(){
+      var num = String(WHATSAPP).replace(/\D/g,'');
+      var nm = g('cn').value.trim(), nt = g('nt').value.trim();
+      var msg = 'Hola, quiero hacer este pedido:\n'+lines.map(function(p){
+        return '• '+cart[p.id]+' × '+p.nombre+' ('+catOf(p)+', '+p.mm+' mm)'+(p.precio?' — '+money(p.precio*cart[p.id]):'');
+      }).join('\n')+(total?'\n\nTotal: '+money(total):'')+'\nMétodo de pago elegido: '+g('pm').value+(nm?'\nNombre: '+nm:'')+(nt?'\nNotas: '+nt:'');
+      var a = document.createElement('a');
+      a.href = 'https://wa.me/'+num+'?text='+encodeURIComponent(msg);
+      a.target = '_blank'; a.rel = 'noopener noreferrer';
+      document.body.appendChild(a); a.click(); a.remove();
+    };
+  }
+
+  modal.addEventListener('click', function(e){ if(e.target===modal) modal.classList.remove('open'); });
+  render();
+})();
+</script>
+</body>
+</html>
